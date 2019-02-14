@@ -43,7 +43,7 @@ expression.
 ......................................................................*)
 
 let add_point_pair (p1 : point_pair) (p2 : point_pair) : point_pair =
-  failwith "add_point_pair not impemented" ;;
+  let (x1, y1), (x2, y2) = p1, p2 in (x1 + x2, y1 + y2) ;;
 
 (* Analogously, we can define a point by using a record to package up
 the x and y coordinates. *)
@@ -54,11 +54,11 @@ type point_recd = {x : int; y : int} ;;
 Exercise 2: 
 
 Implement a function add_point_recd to add two points of type
-point_recd and returning a point _rec as well.
+point_recd and returning a point _recd as well.
 ......................................................................*)
 
-let add_point_recd =
-  fun _ -> failwith "add_point_recd not implemented" ;;
+let add_point_recd (p1 : point_recd) (p2 : point_recd) : point_recd =
+  let (x1, y1), (x2, y2) = (p1.x, p1.y), (p2.x, p1.y) in {x = x1 + x2; y = y1 + y2};;
 
 (* Recall the dot product from Lab 2. The dot product of two points
 (x1, y1) and (x2, y2) is the sum of the products of their x and y
@@ -70,7 +70,7 @@ product for points encoded as the point_pair type.
 ......................................................................*)
 
 let dot_product_pair (p1 : point_pair) (p2 : point_pair) : int =
-  failwith "dot_product_pair not implemented" ;;
+  let (x1, y1), (x2, y2) = p1, p2 in (x1 * x2) + (y1 * y2) ;;
 
 (*......................................................................
 Exercise 4: Write a function dot_product_recd to compute the dot
@@ -78,7 +78,7 @@ product for points encoded as the point_recd type.
 ......................................................................*)
 
 let dot_product_recd (p1 : point_recd) (p2 : point_recd) : int =
-  failwith "dot_product_recd not implemented" ;;
+  let (x1, y1), (x2, y2) = (p1.x, p1.y), (p2.x, p1.y) in (x1 * x2) + (y1 * y2);;
 
 (* Converting between the pair and record representations of points
 
@@ -92,16 +92,16 @@ Exercise 5: Write a function point_pair_to_recd that converts a
 point_pair to a point_recd.
 ......................................................................*)
 
-let point_pair_to_recd =
-  fun _ -> failwith "point_pair_to_recd not implemented" ;;
+let point_pair_to_recd (pp : point_pair) : point_recd =
+  let (ppx, ppy) = pp in {x = ppx; y = ppy} ;;
 
 (*......................................................................
 Exercise 6: Write a function point_recd_to_pair that converts a
 point_recd to a point_pair.
 ......................................................................*)
 
-let point_recd_to_pair =
-  fun _ -> failwith "point_recd_to_pair not implemented" ;;
+let point_recd_to_pair (pr : point_recd) : point_pair = 
+   let prx, pry = pr.x, pr.y in (prx, pry);;
    
 (*======================================================================
 Part 2: A simple database of records
@@ -147,10 +147,10 @@ For example:
      {name = "Sandy"; id = 993855891; course = "cs51"}]
 ......................................................................*)
 
-let transcript (enrollments : enrollment list)
+let rec transcript (enrollments : enrollment list)
                (student : int)
              : enrollment list =
-  failwith "transcript not implemented" ;;
+  List.filter (fun studentrec -> studentrec.id = student) enrollments ;;
   
 (*......................................................................
 Exercise 8: Define a function called ids that takes an enrollment
@@ -165,7 +165,7 @@ For example:
 ......................................................................*)
 
 let ids (enrollments: enrollment list) : int list =
-  failwith "ids not implemented" ;;
+  List.sort_uniq (compare) (List.map (fun student -> student.id) enrollments) ;; 
   
 (*......................................................................
 Exercise 9: Define a function called verify that determines whether all
@@ -177,8 +177,13 @@ For example:
 - : bool = false
 ......................................................................*)
 
-let verify (enrollments : enrollment list) : bool =
-  failwith "verify not implemented" ;;
+let names (enrollments : enrollment list) : string list = 
+  List.sort_uniq (compare) (List.map (fun { name; _ } -> name) enrollments) ;;
+
+let verify (enrollments : enrollment list) : bool = 
+  List.for_all (fun l -> List.length l = 1) 
+    (List.map (fun student -> names (transcript enrollments student))
+      (ids enrollments)) ;;
 
 (*======================================================================
 Part 3: Polymorphism
@@ -201,8 +206,11 @@ worry about explicitly handling the anomalous case when the two lists
 are of different lengths.)
 ......................................................................*)
 
-let zip =
-  fun _ -> failwith "zip not implemented" ;;
+let rec zip (x : 'a list) (y : 'b list) : ('a * 'b) list =
+  match x, y with 
+  | [], _ -> []
+  | _, [] -> []
+  | (xhead :: xtail), (yhead :: ytail)  -> (xhead, yhead) :: (zip xtail ytail);;  
 
 (*......................................................................
 Exercise 11: Partitioning a list -- Given a boolean function, say
@@ -229,8 +237,13 @@ should be as polymorphic as possible?
 Now write the function.
 ......................................................................*)
    
-let partition =
-  fun _ -> failwith "partition not implemented" ;;
+let rec partition (f : 'a -> bool) (lst : 'a list) : ('a list * 'a list) =
+  match lst with
+  | [] -> ([],[])
+  | head :: tail ->
+    let (ttrue, ffalse) = partition f tail in 
+    if f head then (head :: ttrue, ffalse)
+    else (ttrue, head :: ffalse) ;;
 
 (*......................................................................
 Exercise 12: We can think of function application itself as a
@@ -271,5 +284,5 @@ Given the above, what should the type of the function "apply" be?
 Now write the function.
 ......................................................................*)
 
-let apply =
-  fun _ -> failwith "apply not implemented" ;;
+let apply (f : 'a -> 'b) (x : 'a) : 'b =
+  f x ;;
