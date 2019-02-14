@@ -58,7 +58,7 @@ point_recd and returning a point _recd as well.
 ......................................................................*)
 
 let add_point_recd (p1 : point_recd) (p2 : point_recd) : point_recd =
-  let (x1, y1), (x2, y2) = (p1.x, p1.y), (p2.x, p1.y) in {x = x1 + x2; y = y1 + y2};;
+  let {x = x1; y = y1}, {x = x2; y = y2} = p1, p2 in {x = x1 + x2; y = y1 + y2};;
 
 (* Recall the dot product from Lab 2. The dot product of two points
 (x1, y1) and (x2, y2) is the sum of the products of their x and y
@@ -78,7 +78,7 @@ product for points encoded as the point_recd type.
 ......................................................................*)
 
 let dot_product_recd (p1 : point_recd) (p2 : point_recd) : int =
-  let (x1, y1), (x2, y2) = (p1.x, p1.y), (p2.x, p1.y) in (x1 * x2) + (y1 * y2);;
+  let {x = x1; y = y1}, {x = x2; y = y2} = p1, p2 in (x1 * x2) + (y1 * y2);;
 
 (* Converting between the pair and record representations of points
 
